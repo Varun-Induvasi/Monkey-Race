@@ -21,7 +21,10 @@ function MonkeyRaceApp() {
   const [resultsData, setResultsData] = useState<any[]>([]);
   const [replayState, setReplayState] = useState<{ matchId: string; replayData: any[]; textContent: string } | null>(null);
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+  const API_URL = import.meta.env.VITE_API_URL || 
+    (window.location.port === '5173' || window.location.port === '5174'
+      ? 'http://localhost:3001'
+      : window.location.origin);
 
   // 1. Session verification on mount
   useEffect(() => {

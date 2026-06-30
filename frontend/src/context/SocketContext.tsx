@@ -33,8 +33,11 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const connectSocket = useCallback(() => {
     if (socket) return socket;
 
-    // Target the backend port (3001) in local development
-    const socketUrl = import.meta.env.VITE_WS_URL || 'http://localhost:3001';
+    // Target the backend port (3001) in local development, or fallback to current origin in production
+    const socketUrl = import.meta.env.VITE_WS_URL || 
+      (window.location.port === '5173' || window.location.port === '5174'
+        ? 'http://localhost:3001'
+        : window.location.origin);
     
     const newSocket = io(socketUrl, {
       autoConnect: true,

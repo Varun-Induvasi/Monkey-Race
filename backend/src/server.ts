@@ -3,6 +3,8 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import {
   createUser,
   authenticateUser,
@@ -163,6 +165,27 @@ app.get('/api/leaderboard', async (req, res) => {
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
+});
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve static frontend files if built
+const frontendDistPath = path.resolve(__dirname, '..', '..', 'frontend', 'dist');
+app.use(express.static(frontendDistPath));
+
+// Fallback to index.html for Single Page Application (React) routing
+app.get('*', (req, res, next) => {
+  // Pass API requests along (do not handle SPA route fallback for API)
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  res.sendFile(path.join(frontendDistPath, 'index.html'), (err) => {
+    if (err) {
+      // If frontend build doesn't exist, show simple running message
+      res.status(200).send('Monkey Race Backend API is running.');
+    }
+  });
 });
 
 // Setup WebSockets
